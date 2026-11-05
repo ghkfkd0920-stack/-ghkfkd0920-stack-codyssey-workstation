@@ -80,8 +80,8 @@
 docker info > /dev/null && echo "docker OK"
 
 # 1) 저장소 받기
-git clone <이 저장소 URL>
-cd <저장소 폴더>
+git clone https://github.com/ghkfkd0920-stack/codyssey-workstation.git
+cd codyssey-workstation
 
 # 2) 전체 실습 실행 → logs/*.log 생성
 bash scripts/run_all.sh

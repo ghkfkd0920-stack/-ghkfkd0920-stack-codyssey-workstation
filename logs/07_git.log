@@ -1,4 +1,4 @@
-# 07_git  (2026-11-05 17:55:04)
+# 07_git  (2026-11-05 18:19:32)
 
 ## 버전
 
@@ -18,6 +18,10 @@ file:.git/config	core.bare=false
 file:.git/config	core.logallrefupdates=true
 file:.git/config	core.ignorecase=true
 file:.git/config	core.precomposeunicode=true
+file:.git/config	remote.origin.url=https://github.com/ghkfkd0920-stack/codyssey-workstation.git
+file:.git/config	remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*
+file:.git/config	branch.main.remote=origin
+file:.git/config	branch.main.merge=refs/heads/main
 
 ## 기본 브랜치 / 원격 저장소
 
@@ -28,7 +32,9 @@ $ git branch --show-current
 main
 
 $ git remote -v
+origin	https://github.com/ghkfkd0920-stack/codyssey-workstation.git (fetch)
+origin	https://github.com/ghkfkd0920-stack/codyssey-workstation.git (push)
 
 $ git log --oneline -5
-fatal: your current branch 'main' does not have any commits yet
+cccf6db    Codyssey 개발 워크스테이션 미션 제출
 
