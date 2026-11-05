@@ -1,0 +1,89 @@
+# 01_terminal  (2026-11-05 17:22:42)
+
+## 현재 위치 / 목록 (숨김 파일 포함)
+
+$ pwd
+/Users/ihwarang/Desktop/codyssey-workstation
+
+$ ls -la
+total 96
+drwxr-xr-x@ 14 ihwarang  staff    448 11월  5 17:22 .
+drwx------@  6 ihwarang  staff    192 11월  5 17:22 ..
+-rw-r--r--@  1 ihwarang  staff   6148 11월  3 17:28 .DS_Store
+-rw-------@  1 ihwarang  staff    139 11월  5 17:02 .env.example
+drwxr-xr-x   9 ihwarang  staff    288 11월  5 17:22 .git
+-rw-------@  1 ihwarang  staff     59 11월  5 17:02 .gitignore
+drwxr-xr-x@  5 ihwarang  staff    160 11월  3 17:29 app
+-rw-------@  1 ihwarang  staff    632 11월  5 17:02 docker-compose.yml
+-rw-------@  1 ihwarang  staff   1153 11월  5 17:02 Dockerfile
+drwxr-xr-x@  3 ihwarang  staff     96 11월  3 17:29 docs
+drwxr-xr-x@  4 ihwarang  staff    128 11월  5 17:22 logs
+drwxr-xr-x@  3 ihwarang  staff     96 11월  5 17:02 mount-demo
+-rw-------@  1 ihwarang  staff  23492 11월  5 17:02 README.md
+drwxr-xr-x@ 12 ihwarang  staff    384 11월  5 17:02 scripts
+
+## 디렉토리 생성 및 이동 (상대 경로 vs 절대 경로)
+
+$ mkdir -p practice/docs
+
+$ cd practice && pwd
+/Users/ihwarang/Desktop/codyssey-workstation/practice
+
+$ cd "/Users/ihwarang/Desktop/codyssey-workstation/practice" && pwd
+/Users/ihwarang/Desktop/codyssey-workstation/practice
+
+## 빈 파일 생성 / 내용 쓰기 / 내용 확인
+
+$ touch empty.txt
+
+$ ls -l empty.txt
+-rw-r--r--  1 ihwarang  staff  0 11월  5 17:22 empty.txt
+
+$ echo "hello codyssey" > memo.txt
+
+$ cat memo.txt
+hello codyssey
+
+## 복사
+
+$ cp memo.txt docs/memo_copy.txt
+
+$ ls -la docs
+total 8
+drwxr-xr-x  3 ihwarang  staff   96 11월  5 17:22 .
+drwxr-xr-x  5 ihwarang  staff  160 11월  5 17:22 ..
+-rw-r--r--  1 ihwarang  staff   15 11월  5 17:22 memo_copy.txt
+
+## 이동 / 이름 변경
+
+$ mv empty.txt renamed.txt
+
+$ mv renamed.txt docs/
+
+$ ls -la . docs
+.:
+total 8
+drwxr-xr-x   4 ihwarang  staff  128 11월  5 17:22 .
+drwxr-xr-x@ 15 ihwarang  staff  480 11월  5 17:22 ..
+drwxr-xr-x   4 ihwarang  staff  128 11월  5 17:22 docs
+-rw-r--r--   1 ihwarang  staff   15 11월  5 17:22 memo.txt
+
+docs:
+total 8
+drwxr-xr-x  4 ihwarang  staff  128 11월  5 17:22 .
+drwxr-xr-x  4 ihwarang  staff  128 11월  5 17:22 ..
+-rw-r--r--  1 ihwarang  staff   15 11월  5 17:22 memo_copy.txt
+-rw-r--r--  1 ihwarang  staff    0 11월  5 17:22 renamed.txt
+
+## 삭제
+
+$ rm docs/renamed.txt
+
+$ rm -r docs
+
+$ ls -la
+total 8
+drwxr-xr-x   3 ihwarang  staff   96 11월  5 17:22 .
+drwxr-xr-x@ 15 ihwarang  staff  480 11월  5 17:22 ..
+-rw-r--r--   1 ihwarang  staff   15 11월  5 17:22 memo.txt
+

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Codyssey Workstation</title>
+  <style>
+    body { font-family: -apple-system, "Apple SD Gothic Neo", sans-serif; background:#0f172a; color:#e2e8f0;
+           display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; }
+    .card { background:#1e293b; padding:40px 48px; border-radius:16px; max-width:560px; }
+    h1 { margin-top:0; color:#38bdf8; }
+    code { background:#334155; padding:2px 6px; border-radius:4px; }
+    li { margin:6px 0; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Hello, Codyssey!</h1>
+    <p>Custom NGINX image (<code>my-web:1.0</code>)에서 서빙되는 정적 페이지입니다.</p>
+    <ul>
+      <li><code>/health</code> — 헬스체크 엔드포인트</li>
+      <li><code>/info</code> — 환경 변수(APP_MODE, NGINX_PORT) 확인</li>
+    </ul>
+  </div>
+</body>
+</html>

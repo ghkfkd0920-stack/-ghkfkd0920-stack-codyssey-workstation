@@ -1,0 +1,118 @@
+# 04_build_run  (2026-11-05 17:31:20)
+
+## 빌드
+
+$ docker build -t my-web:1.0 .
+#0 building with "orbstack" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.44kB 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/nginx:alpine
+#2 DONE 1.9s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [1/5] FROM docker.io/library/nginx:alpine@sha256:785835ea65db4bba6f021acc0f3be91b0fef76a53fe41f8588c6698d2aed0606
+#4 resolve docker.io/library/nginx:alpine@sha256:785835ea65db4bba6f021acc0f3be91b0fef76a53fe41f8588c6698d2aed0606 0.0s done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 1.98kB done
+#5 DONE 0.0s
+
+#6 [2/5] RUN rm -f /etc/nginx/conf.d/default.conf
+#6 CACHED
+
+#7 [3/5] COPY app/nginx/default.conf.template /etc/nginx/templates/default.conf.template
+#7 DONE 0.1s
+
+#8 [4/5] COPY app/site/ /usr/share/nginx/html/
+#8 DONE 0.1s
+
+#9 [5/5] RUN chmod -R a+rX /usr/share/nginx/html /etc/nginx/templates
+#9 DONE 0.2s
+
+#10 exporting to image
+#10 exporting layers 0.1s done
+#10 exporting manifest sha256:61306d11b96e93dd04fa81644bc59af580a2e783da189b9216315a3913fc236d
+#10 exporting manifest sha256:61306d11b96e93dd04fa81644bc59af580a2e783da189b9216315a3913fc236d done
+#10 exporting config sha256:baf86bdd40c50081239b650b3a2020e530b94d831e9a0b5d49da51939dee5de7 done
+#10 exporting attestation manifest sha256:938b5acfd8ccd30f72be19edbcd2c627298f05f1d16ca6ae9ff63063cd0f32bc done
+#10 exporting manifest list sha256:cd93595b93cc7b16fc109d5f2abeedde7d2f8b8f85173d6958010ee4e409f83a done
+#10 naming to docker.io/library/my-web:1.0 done
+#10 unpacking to docker.io/library/my-web:1.0 0.1s done
+#10 DONE 0.2s
+
+$ docker images my-web
+IMAGE        ID             DISK USAGE   CONTENT SIZE   EXTRA
+my-web:1.0   cd93595b93cc       94.4MB         26.3MB        
+
+$ docker inspect my-web:1.0 --format "Labels={{json .Config.Labels}} Env={{json .Config.Env}}"
+Labels={"maintainer":"NGINX Docker Maintainers <docker-maint@nginx.com>","org.opencontainers.image.description":"Codyssey workstation mission - custom nginx","org.opencontainers.image.title":"my-custom-nginx"} Env=["PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin","NGINX_VERSION=1.31.8","PKG_RELEASE=1","DYNPKG_RELEASE=1","NJS_VERSION=1.0.2","NJS_RELEASE=1","ACME_VERSION=0.4.1","NGINX_PORT=80","APP_MODE=dev"]
+
+## 포트 매핑 실행 #1 (호스트 8080 → 컨테이너 80)
+
+$ docker run -d -p 8080:80 --name my-web-8080 my-web:1.0
+7e3dca34d5f3534d512ee0507e699594f703dfd6287ff0cc5d514e59629a067b
+
+$ curl -s http://localhost:8080 | grep -o "<h1>.*</h1>"
+<h1>Hello, Codyssey!</h1>
+
+$ curl -s http://localhost:8080/health
+ok
+
+## 포트 매핑 실행 #2 (호스트 8081 → 컨테이너 80, 같은 이미지)
+
+$ docker run -d -p 8081:80 --name my-web-8081 my-web:1.0
+4a34d38615b8f671f680a015192ca265d468f9494e0bc4922d097ce70cfc7390
+
+$ curl -s http://localhost:8081 | grep -o "<h1>.*</h1>"
+<h1>Hello, Codyssey!</h1>
+
+## 포트 충돌 재현 (이미 사용 중인 8080 재사용) → 트러블슈팅 2
+
+$ docker run -d -p 8080:80 --name my-web-conflict my-web:1.0
+eb785343c0a691c26b9417ac4f5fd457a8ae4faf6d15bfdc478a960497fc7228
+docker: Error response from daemon: failed to set up container networking: driver failed programming external connectivity on endpoint my-web-conflict (2723303574c2bb4756c4c4c230e8e8964c9f3475f2f85f04f9bcee32f9365c17): Bind for :::8080 failed: port is already allocated
+
+Run 'docker run --help' for more information
+
+$ docker rm -f my-web-conflict
+my-web-conflict
+
+## 환경 변수 주입: 컨테이너 내부 포트 8000, 모드 prod
+
+$ docker run -d -p 8082:8000 -e NGINX_PORT=8000 -e APP_MODE=prod --name my-web-prod my-web:1.0
+b55bf5dcb1007574d0d411548c20b5113617cd5920ea66a47ba6aef67ff4a892
+
+$ curl -s http://localhost:8082/info
+{"app_mode":"prod","listen_port":"8000"}
+
+$ curl -s http://localhost:8080/info
+{"app_mode":"dev","listen_port":"80"}
+
+## 상태 / 로그 / 리소스
+
+$ docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Ports}}\t{{.Status}}"
+NAMES         IMAGE        PORTS                                                 STATUS
+my-web-prod   my-web:1.0   80/tcp, 0.0.0.0:8082->8000/tcp, [::]:8082->8000/tcp   Up 10 seconds (healthy)
+my-web-8081   my-web:1.0   0.0.0.0:8081->80/tcp, [::]:8081->80/tcp               Up 12 seconds (healthy)
+my-web-8080   my-web:1.0   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp               Up 15 seconds (healthy)
+
+$ docker logs --tail 5 my-web-8080
+192.168.215.1 - - [05/Nov/2026:08:31:26 +0000] "GET / HTTP/1.1" 200 991 "-" "curl/8.7.1" "-"
+192.168.215.1 - - [05/Nov/2026:08:31:27 +0000] "GET /health HTTP/1.1" 200 3 "-" "curl/8.7.1" "-"
+127.0.0.1 - - [05/Nov/2026:08:31:29 +0000] "GET /health HTTP/1.1" 200 3 "-" "Wget" "-"
+192.168.215.1 - - [05/Nov/2026:08:31:31 +0000] "GET /info HTTP/1.1" 200 38 "-" "curl/8.7.1" "-"
+127.0.0.1 - - [05/Nov/2026:08:31:39 +0000] "GET /health HTTP/1.1" 200 3 "-" "Wget" "-"
+
+$ docker stats --no-stream my-web-8080 my-web-8081 my-web-prod
+CONTAINER ID   NAME          CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O     PIDS
+7e3dca34d5f3   my-web-8080   0.00%     8.379MiB / 3.893GiB   0.21%     3.07kB / 2.62kB   7.77MB / 0B   9
+4a34d38615b8   my-web-8081   0.00%     7.145MiB / 3.893GiB   0.18%     1.67kB / 1.78kB   0B / 0B       9
+b55bf5dcb100   my-web-prod   0.00%     7.121MiB / 3.893GiB   0.18%     1.4kB / 677B      0B / 0B       9
+

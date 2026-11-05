@@ -1,0 +1,26 @@
+# nginx 공식 이미지는 컨테이너 시작 시 /etc/nginx/templates/*.template 파일의
+# ${환경변수} 를 envsubst로 치환해 /etc/nginx/conf.d/ 에 생성한다.
+# (정의된 환경변수만 치환되므로 $uri 같은 nginx 변수는 그대로 유지된다)
+server {
+    listen       ${NGINX_PORT};
+    server_name  localhost;
+
+    root   /usr/share/nginx/html;
+    index  index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    # 헬스체크용
+    location = /health {
+        default_type text/plain;
+        return 200 "ok\n";
+    }
+
+    # 환경 변수 주입 확인용 (설정과 코드의 분리)
+    location = /info {
+        default_type application/json;
+        return 200 '{"app_mode":"${APP_MODE}","listen_port":"${NGINX_PORT}"}\n';
+    }
+}

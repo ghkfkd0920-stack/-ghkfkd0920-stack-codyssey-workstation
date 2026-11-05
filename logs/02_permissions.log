@@ -1,0 +1,70 @@
+# 02_permissions  (2026-11-05 17:22:43)
+
+## 실습 대상 준비
+
+$ printf "#!/bin/sh\necho script executed\n" > hello.sh
+
+$ mkdir -p secret_dir && echo "data" > secret_dir/a.txt
+
+## [파일] 변경 전 (기본 644: rw-r--r--)
+
+$ chmod 644 hello.sh
+
+$ ls -l hello.sh
+-rw-r--r--  1 ihwarang  staff  31 11월  5 17:22 hello.sh
+
+$ ./hello.sh
+./lib.sh: line 18: ./hello.sh: Permission denied
+
+## [파일] 변경 후 755 (rwxr-xr-x)
+
+$ chmod 755 hello.sh
+
+$ ls -l hello.sh
+-rwxr-xr-x  1 ihwarang  staff  31 11월  5 17:22 hello.sh
+
+$ ./hello.sh
+script executed
+
+## [파일] 기호 표기 사용: u=rwx,go=r (= 744)
+
+$ chmod u=rwx,go=r hello.sh
+
+$ ls -l hello.sh
+-rwxr--r--  1 ihwarang  staff  31 11월  5 17:22 hello.sh
+
+## [디렉토리] 변경 전 755
+
+$ chmod 755 secret_dir
+
+$ ls -ld secret_dir
+drwxr-xr-x  3 ihwarang  staff  96 11월  5 17:22 secret_dir
+
+$ ls secret_dir
+a.txt
+
+## [디렉토리] 변경 후 700 (소유자만 접근)
+
+$ chmod 700 secret_dir
+
+$ ls -ld secret_dir
+drwx------  3 ihwarang  staff  96 11월  5 17:22 secret_dir
+
+## [디렉토리] 읽기 권한 제거 (300: -wx) → 목록 조회 불가 관찰
+
+$ chmod 300 secret_dir
+
+$ ls -ld secret_dir
+d-wx------  3 ihwarang  staff  96 11월  5 17:22 secret_dir
+
+$ ls secret_dir
+ls: secret_dir: Permission denied
+
+$ cat secret_dir/a.txt
+data
+
+## 원복
+
+$ chmod 755 secret_dir && ls -ld secret_dir
+drwxr-xr-x  3 ihwarang  staff  96 11월  5 17:22 secret_dir
+

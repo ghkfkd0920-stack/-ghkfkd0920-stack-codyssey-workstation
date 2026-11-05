@@ -1,0 +1,5 @@
+.env
+.DS_Store
+practice/
+mount-demo/*
+!mount-demo/.gitkeep

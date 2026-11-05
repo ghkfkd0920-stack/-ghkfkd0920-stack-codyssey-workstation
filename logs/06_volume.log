@@ -1,0 +1,75 @@
+# 06_volume  (2026-11-05 17:24:54)
+
+## 볼륨 생성 / 확인
+
+$ docker volume create mydata
+mydata
+
+$ docker volume ls
+DRIVER    VOLUME NAME
+local     mydata
+
+$ docker volume inspect mydata
+[
+    {
+        "CreatedAt": "2026-11-05T17:24:54+09:00",
+        "Driver": "local",
+        "Labels": null,
+        "Mountpoint": "/var/lib/docker/volumes/mydata/_data",
+        "Name": "mydata",
+        "Options": null,
+        "Scope": "local"
+    }
+]
+
+## 컨테이너 1에 연결 후 데이터 기록
+
+$ docker run -d --name vol-test -v mydata:/data ubuntu:22.04 sleep infinity
+dfe57eda4932e536f630ffd3c0bb666978550db4632ef71fdadaf6cf027e06c1
+
+$ docker exec vol-test bash -c "echo hi-from-vol-test-$(date +%s) > /data/hello.txt && cat /data/hello.txt"
+hi-from-vol-test-1793867094
+
+## 컨테이너 1 삭제 (삭제 전/후 목록)
+
+$ docker ps -a --filter name=vol-test
+CONTAINER ID   IMAGE          COMMAND            CREATED        STATUS                  PORTS     NAMES
+dfe57eda4932   ubuntu:22.04   "sleep infinity"   1 second ago   Up Less than a second             vol-test
+
+$ docker rm -f vol-test
+vol-test
+
+$ docker ps -a --filter name=vol-test
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+$ docker volume ls --filter name=mydata
+DRIVER    VOLUME NAME
+local     mydata
+
+## 새 컨테이너 2에 같은 볼륨 연결 → 데이터 유지 확인
+
+$ docker run -d --name vol-test2 -v mydata:/data ubuntu:22.04 sleep infinity
+1ba1326355fcf4bdb5fad014eaf75897690ad48bac99a65592253133850743a1
+
+$ docker exec vol-test2 cat /data/hello.txt
+hi-from-vol-test-1793867094
+
+## 비교: 볼륨 없이 컨테이너 내부에만 쓴 데이터는 삭제와 함께 사라짐
+
+$ docker run -d --name no-vol ubuntu:22.04 sleep infinity
+5d4f915f0cf4dcf82736d7c43a5608055708499f857a450af3e1e82791bf68e5
+
+$ docker exec no-vol bash -c "echo temp > /tmp/temp.txt && cat /tmp/temp.txt"
+temp
+
+$ docker rm -f no-vol
+no-vol
+
+$ docker run --rm --name no-vol ubuntu:22.04 cat /tmp/temp.txt
+cat: /tmp/temp.txt: No such file or directory
+
+## 정리 (볼륨은 남겨둠)
+
+$ docker rm -f vol-test2
+vol-test2
+
